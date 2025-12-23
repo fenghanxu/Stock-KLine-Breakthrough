@@ -605,6 +605,11 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     if (self.loadedKLineData.count < 8) return;
     
     for (NSInteger i = 7; i < self.loadedKLineData.count; i++) {
+        
+        // ==============================================================
+        // 信息初始化
+        // ==============================================================
+        
         KLineModel *model_1  = self.loadedKLineData[i];    //第一根
         KLineModel *model_2  = self.loadedKLineData[i - 1];//第二根
         KLineModel *model_3  = self.loadedKLineData[i - 2];//第三根
@@ -680,6 +685,9 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             model_8_percent = (model_8.open - model_8.close) / model_8.open;//算法确认
         }
 
+        // ==============================================================
+        // 涨跌1% 规范1
+        // ==============================================================
 
         //跌的部分
         BOOL fallingPart = NO;
@@ -798,9 +806,9 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         }
         
         //跌1%
-        BOOL fallingPrecent = NO;
+        BOOL specification_1_fallingPrecent = NO;
         if ((model_4.open - model_1.close) / model_4.open >= 0.01) {
-            fallingPrecent = YES;
+            specification_1_fallingPrecent = YES;
             float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
             float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
             float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
@@ -817,9 +825,9 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         }
  
         //升1%
-        BOOL risePrecent = NO;
+        BOOL specification_1_risePrecent = NO;
         if ((model_5.close - model_8.open) / model_8.open >= 0.01) {
-            risePrecent = YES;
+            specification_1_risePrecent = YES;
             float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
             float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
             float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
@@ -835,14 +843,55 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(不满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
         }
         
-        if (fallingPart && risePart && fallingPrecent && risePrecent) {
+        if (fallingPart && risePart && specification_1_fallingPrecent && specification_1_risePrecent) {
             self.loadedKLineData[i - 3].isMountainPeak = YES;
-            NSDate *date = [NSDate dateWithTimeIntervalSince1970:self.loadedKLineData[i - 3].timestamp];
-            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-            formatter.dateFormat = @"yyyy-MM-dd HH";
-            NSString *dateStr = [formatter stringFromDate:date];
-            NSLog(@"日期: %@",dateStr);
-            self.loadedKLineData[i].condition_5 = @"全部满足";
+            self.loadedKLineData[i].condition_5 = @"全部满足 规范1";
+        }
+        
+        // ==============================================================
+        // 涨跌0.47% 规范2
+        // ==============================================================
+        //跌0.47%
+        BOOL specification_2_fallingPrecent = NO;
+        if ((model_4.open - model_1.close) / model_4.open >= 0.0047) {
+            specification_2_fallingPrecent = YES;
+            float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
+            float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
+            float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
+            float model_4_percent_value = model_4_rise ? model_4_percent : -model_4_percent;
+            float percent = model_1_percent_value + model_2_percent_value + model_3_percent_value + model_4_percent_value;
+            self.loadedKLineData[i].condition_3 = [NSString stringWithFormat:@"(满足)实际跌: %.2f%%(K1 %.2f, K2 %.2f, K3 %.2f, K4 %.2f)",percent * 100, model_1_percent_value * 100, model_2_percent_value * 100, model_3_percent_value * 100, model_4_percent_value * 100];
+        } else {
+            float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
+            float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
+            float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
+            float model_4_percent_value = model_4_rise ? model_4_percent : -model_4_percent;
+            float percent = model_1_percent_value + model_2_percent_value + model_3_percent_value + model_4_percent_value;
+            self.loadedKLineData[i].condition_3 = [NSString stringWithFormat:@"(不满足)实际跌: %.2f%%(K1 %.2f, K2 %.2f, K3 %.2f, K4 %.2f)",percent * 100, model_1_percent_value * 100, model_2_percent_value * 100, model_3_percent_value * 100, model_4_percent_value * 100];
+        }
+ 
+        //升0.47%
+        BOOL specification_2_risePrecent = NO;
+        if ((model_5.close - model_8.open) / model_8.open >= 0.0047) {
+            specification_2_risePrecent = YES;
+            float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
+            float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
+            float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
+            float model_8_percent_value = model_8_rise ? model_8_percent : -model_8_percent;
+            float percent = model_5_percent_value + model_6_percent_value + model_7_percent_value + model_8_percent_value;
+            self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
+        } else {
+            float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
+            float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
+            float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
+            float model_8_percent_value = model_8_rise ? model_8_percent : -model_8_percent;
+            float percent = model_5_percent_value + model_6_percent_value + model_7_percent_value + model_8_percent_value;
+            self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(不满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
+        }
+        
+        if (fallingPart && risePart && specification_2_fallingPrecent && specification_2_risePrecent) {
+            self.loadedKLineData[i - 3].isMountainPeak = YES;
+            self.loadedKLineData[i].condition_5 = @"全部满足  规范2";
         }
     
     }
