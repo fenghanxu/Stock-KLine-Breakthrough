@@ -22,6 +22,7 @@
 
 //山峰标记
 @property (nonatomic, assign) BOOL isMountainPeak;
+@property (nonatomic, copy) NSString * mountainPeakTag;
 
 @property (nonatomic, copy) NSString * condition_1;
 @property (nonatomic, copy) NSString * condition_2;
@@ -401,14 +402,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         }
         
         // 山峰标记
-        if (self.visibleKLineData[i].isMountainPeak) {
+        if (self.visibleKLineData[i].mountainPeakTag) {
             if (i >= startIndex && i <= endIndex) {
                 KLineModel *peakModel = self.visibleKLineData[i];
                 CGFloat x = i * (self.candleWidth + space) + self.candleWidth/2;
                 CGFloat y = (maxPrice - peakModel.high) * scale;
                 
                 // 绘制山峰标记
-                NSString *peakText = @"山峰";
+                NSString *peakText = self.visibleKLineData[i].mountainPeakTag;
                 NSDictionary *attrs = @{
                     NSFontAttributeName: [UIFont systemFontOfSize:10],
                     NSForegroundColorAttributeName: [UIColor redColor]
@@ -845,6 +846,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         if (fallingPart && risePart && specification_1_fallingPrecent && specification_1_risePrecent) {
             self.loadedKLineData[i - 3].isMountainPeak = YES;
+            self.loadedKLineData[i - 3].mountainPeakTag = @"规范1";
             self.loadedKLineData[i].condition_5 = @"全部满足 规范1";
         }
         
@@ -891,6 +893,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         if (fallingPart && risePart && specification_2_fallingPrecent && specification_2_risePrecent) {
             self.loadedKLineData[i - 3].isMountainPeak = YES;
+            self.loadedKLineData[i - 3].mountainPeakTag = @"规范2";
             self.loadedKLineData[i].condition_5 = @"全部满足  规范2";
         }
     
