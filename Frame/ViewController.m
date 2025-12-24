@@ -21,7 +21,6 @@
 @property (nonatomic, assign) CGFloat volume;
 
 //山峰标记
-@property (nonatomic, assign) BOOL isMountainPeak;
 @property (nonatomic, copy) NSString * mountainPeakTag;
 
 @property (nonatomic, copy) NSString * condition_1;
@@ -32,6 +31,7 @@
 @property (nonatomic, copy) NSString * condition_6;
 @property (nonatomic, copy) NSString * condition_7;
 @property (nonatomic, copy) NSString * condition_8;
+@property (nonatomic, copy) NSString * condition_9;
 @end
 
 @implementation KLineModel
@@ -50,6 +50,7 @@
 @property (nonatomic, strong) UILabel *titleLabel_6;
 @property (nonatomic, strong) UILabel *titleLabel_7;
 @property (nonatomic, strong) UILabel *titleLabel_8;
+@property (nonatomic, strong) UILabel *titleLabel_9;
 @end
 
 @implementation TipView
@@ -64,6 +65,7 @@
     self.titleLabel_6.str(_model.condition_6);
     self.titleLabel_7.str(_model.condition_7);
     self.titleLabel_8.str(_model.condition_8);
+    self.titleLabel_9.str(_model.condition_9);
     
     NSArray *lines_1 = [_model.condition_1 componentsSeparatedByString:@"\n"];
     self.titleLabel_1.updateCons(^{
@@ -103,6 +105,11 @@
     NSArray *lines_8 = [_model.condition_8 componentsSeparatedByString:@"\n"];
     self.titleLabel_8.updateCons(^{
         make.height.equal.constants(lines_8.count*20);
+    });
+    
+    NSArray *lines_9 = [_model.condition_9 componentsSeparatedByString:@"\n"];
+    self.titleLabel_9.updateCons(^{
+        make.height.equal.constants(lines_9.count*20);
     });
     
 }
@@ -186,6 +193,15 @@
         make.left.equal.view(self);
         make.right.equal.view(self);
         make.top.equal.view(self.titleLabel_7).bottom.constants(0);
+        make.height.equal.constants(120);
+    });
+    
+    self.titleLabel_9 = [UILabel new];
+    self.titleLabel_9.textColor = [UIColor whiteColor];
+    self.titleLabel_9.addTo(self).fnt(12).bgColor([UIColor colorWithHex:0xC71585]).lines(0).makeCons(^{
+        make.left.equal.view(self);
+        make.right.equal.view(self);
+        make.top.equal.view(self.titleLabel_8).bottom.constants(0);
         make.height.equal.constants(120);
     });
     
@@ -607,6 +623,9 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     
     for (NSInteger i = 7; i < self.loadedKLineData.count; i++) {
         
+        // 每次循环开始前清空当前K线的条件记录
+        [self clearConditionPropertiesForIndex:i];
+        
         // ==============================================================
         // 信息初始化
         // ==============================================================
@@ -685,10 +704,154 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         } else {//第八条: 跌
             model_8_percent = (model_8.open - model_8.close) / model_8.open;//算法确认
         }
-
+        
+        
         // ==============================================================
-        // 涨跌1% 规范1
+        // 规范3
+        // 跌(第四条,第三条) 两条其中一条跌幅大于0.25%,第一条,第二条最好跌,如果是升,升幅不能超过0.1%
+        // 升(第五条,第六条) 两条其中一条升幅大于0.25%,第七条,第八条最好升 如果是跌,跌幅不能超过0.1%
         // ==============================================================
+        BOOL specification_3_falling_k4 = NO;
+        if (model_4_rise == NO) {
+            specification_3_falling_k4 = YES;
+            self.loadedKLineData[i].condition_1 = @"(满足) 第四条跌";
+        } else {
+            self.loadedKLineData[i].condition_1 = @"(不满足) 第四条不是跌";
+        }
+        
+        BOOL specification_3_falling_k3 = NO;
+        if (model_3_rise == NO) {
+            if (model_3_percent >= 0.0025) {
+                specification_3_falling_k3 = YES;
+                self.loadedKLineData[i].condition_2 = @"(满足) 第三条跌 && 跌幅 大于 0.25%";
+            } else {
+                if (model_4_rise == NO && model_4_percent >= 0.0025) {
+                    specification_3_falling_k3 = YES;
+                    self.loadedKLineData[i].condition_2 = @"(满足) 虽然第三条是跌幅小于0.25% 但是 第四条跌幅 大于 0.25%";
+                } else {
+                    self.loadedKLineData[i].condition_2 = @"(不满足) 第三条跌幅小于0.25% && 第四条跌幅小于0.25%";
+                }
+            }
+        } else {
+            if (model_3_percent <= 0.001 && model_4_rise == NO && model_4_percent >= 0.0025) {
+                self.loadedKLineData[i].condition_2 = @"(满足) 即使第三条升幅 小于 0.1% 但是 第四条跌幅 大于 0.25%";
+            } else {
+                self.loadedKLineData[i].condition_2 = @"(不满足) 第三条是升 && 第四条跌幅小于0.25%";
+            }
+        }
+        
+        BOOL specification_3_falling_k2 = NO;
+        if (model_2_rise == NO) {
+            specification_3_falling_k2 = YES;
+            self.loadedKLineData[i].condition_3 = @"(满足) 第二条是跌";
+        } else {
+            if (model_2_percent <= 0.001) {
+                specification_3_falling_k2 = YES;
+                self.loadedKLineData[i].condition_3 = @"(满足) 第二条升幅 小于 0.1%";
+            }
+        }
+        
+        BOOL specification_3_falling_k1 = NO;
+        if (model_1_rise == NO) {
+            specification_3_falling_k1 = YES;
+            self.loadedKLineData[i].condition_4 = @"(满足) 第一条是跌";
+        } else {
+            if (model_1_percent <= 0.001) {
+                specification_3_falling_k1 = YES;
+                self.loadedKLineData[i].condition_4 = @"(满足) 第一条升幅小于0.1%";
+            }
+        }
+        
+        BOOL specification_3_falling_k5 = NO;
+        if (model_5_rise == YES) {
+            specification_3_falling_k5 = YES;
+            self.loadedKLineData[i].condition_5 = @"(满足) 第五条升";
+        }
+        
+        BOOL specification_3_falling_k6 = NO;
+        if (model_6_rise == YES) {
+            if (model_6_percent >= 0.0025) {
+                specification_3_falling_k6 = YES;
+                self.loadedKLineData[i].condition_6 = @"(满足) 第六条升 && 跌幅 大于 0.25%";
+            } else {
+                if (model_5_rise == YES && model_5_percent >= 0.0025) {
+                    specification_3_falling_k6 = YES;
+                    self.loadedKLineData[i].condition_6 = @"(满足) 虽然第六条是升小于0.25% 但是 第五条升幅 大于 0.25%";
+                } else {
+                    self.loadedKLineData[i].condition_6 = @"(不满足) 第六条跌幅小于0.25% && 第五条跌幅小于0.25%";
+                }
+            }
+        } else {
+            if (model_6_percent <= 0.001 && model_5_rise == YES && model_5_percent >= 0.0025) {
+                self.loadedKLineData[i].condition_6 = @"(满足) 虽然第六条升幅 小于 0.1% 但是 第五条升幅 大于 0.25%";
+            } else {
+                self.loadedKLineData[i].condition_6 = @"(不满足) 第六条是升 && 第五条升幅小于0.25%";
+            }
+        }
+        
+        BOOL specification_3_falling_k7 = NO;
+        if (model_7_rise == YES) {
+            specification_3_falling_k7 = YES;
+            self.loadedKLineData[i].condition_7 = @"(满足) 第七条是升";
+        } else {
+            if (model_7_percent <= 0.001) {
+                specification_3_falling_k7 = YES;
+                self.loadedKLineData[i].condition_7 = @"(满足) 虽然第七条是跌 但是跌幅小于0.1%";
+            } else {
+                self.loadedKLineData[i].condition_7 = @"(不满足) 第七条跌幅大于0.1%";
+            }
+        }
+        
+        BOOL specification_3_falling_k8 = NO;
+        if (model_8_rise == YES) {
+            specification_3_falling_k8 = YES;
+            self.loadedKLineData[i].condition_8 = @"(满足) 第八条是升";
+        } else {
+            if (model_8_percent <= 0.001) {
+                specification_3_falling_k8 = YES;
+                self.loadedKLineData[i].condition_8 = @"(满足) 虽然第八条是跌 但是跌幅小于0.1%";
+            } else {
+                self.loadedKLineData[i].condition_8 = @"(不满足) 第八条跌幅大于0.1%";
+            }
+        }
+        
+        BOOL isSpecification3 = NO;
+        if (specification_3_falling_k4 && specification_3_falling_k3 && specification_3_falling_k2 && specification_3_falling_k1 && specification_3_falling_k5 && specification_3_falling_k6 && specification_3_falling_k7 && specification_3_falling_k8) {
+            self.loadedKLineData[i - 3].mountainPeakTag = @"规范3";
+            self.loadedKLineData[i].condition_9 = @"全部满足 规范3";
+            isSpecification3 = YES;
+        }
+        
+        // 如果满足规范三，直接跳过规范二的判断，继续下一轮循环
+        if (isSpecification3) {
+            continue;
+        }
+        
+        // ==============================================================
+        // 规范2
+        // 第一条 到 第四条 跌幅最少0.47%
+        // 第五条 到 第八条 升幅最少0.47%
+        
+        //跌的部分
+        // 如果第三条升,升幅不能超过第四条75%
+        // 如果第二条升,升幅不能超过第三条75%
+        // 如果第一条升,升幅不能超过第二条75%
+        // 如果第二条, 第三条升(两条加起来)不能超过第四条的70%  (第一条跌多少目前没有规定)
+        // 如果第一条, 第二条升(两条加起来)不能超过第三条的70%  (第四条跌多少目前没有规定)
+        // 如果第一条, 第三条 第一条升幅不能超过第二条的70%  第三条升幅不能超过第四条的70%
+        // 如果第一条, 第二条, 第三条升(三条加起来)不能超过第四条的35%
+        
+        // 升的部分
+        // 如果第六条跌,跌幅不能超过第五条75%
+        // 如果第七条跌,跌幅不能超过第六条75%
+        // 如果第八条跌,跌幅不能超过第七条75%
+        // 如果第八条, 第七条跌(两条加起来)不能超过第六条的70%  (第五条跌多少目前没有规定)
+        // 如果第七条, 第六条跌(两条加起来)不能超过第五条的70%  (第八条跌多少目前没有规定)
+        // 如果第八条, 第六条, 第八条跌幅不能超过第七条的70%  第六条跌幅不能超过第五条的70%
+        // 如果第八条, 第七条, 第六条跌(三条加起来)不能超过第五条的35%
+        // ==============================================================
+        
+        [self clearConditionPropertiesForIndex:i];
 
         //跌的部分
         BOOL fallingPart = NO;
@@ -696,25 +859,25 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             fallingPart = YES;
             self.loadedKLineData[i].condition_1 = @"(满足)跌的部分: 四条跌";
         } else if (model_1_rise == NO && model_2_rise == NO && model_3_rise == YES && model_4_rise == NO) {//只有第三条升
-            if (model_3_percent < model_4_percent) {
+            if (model_3_percent / model_4_percent < 0.75) {
                 fallingPart = YES;
-                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第三条升 并且 没有超过第四条";
+                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第三条升 并且 没有达到第四条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第三条升 但是 第三条升幅超过第四条";
+                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第三条升 但是 第三条升幅超过第四条75%";
             }
         } else if (model_1_rise == NO && model_2_rise == YES && model_3_rise == NO && model_4_rise == NO) {//只有第二条升
-            if (model_2_percent < model_3_percent) {
+            if (model_2_percent / model_3_percent < 0.75) {
                 fallingPart = YES;
-                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第二条升 并且 没有超过第三条";
+                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第二条升 并且 没有达到第三条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第二条升 但是 第二条升幅超过第三条";
+                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第二条升 但是 第二条升幅超过第三条75%";
             }
         } else if (model_1_rise == YES && model_2_rise == NO && model_3_rise == NO && model_4_rise == NO) {//只有第一条升
-            if (model_1_percent < model_2_percent) {
+            if (model_1_percent / model_2_percent < 0.75) {
                 fallingPart = YES;
-                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第一条升 并且 没有超过第二条";
+                self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第一条升 并且 没有达到第二条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第一条升 但是 第一条升幅超过第二条";
+                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第一条升 但是 第一条升幅超过第二条75%";
             }
         } else if (model_1_rise == NO && model_2_rise == YES && model_3_rise == YES && model_4_rise == NO) {//第二条, 第三条升
             if ((model_2_percent + model_3_percent) / model_4_percent < 0.7){//第二条, 第三条 加起来没有 第四条 70%
@@ -754,25 +917,25 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             risePart = YES;
             self.loadedKLineData[i].condition_2 = @"(满足)升的部分: 四条升";
         } else if (model_5_rise == YES && model_6_rise == NO && model_7_rise == YES && model_8_rise == YES) {//只有第六条 跌
-            if (model_6_percent < model_5_percent) {
+            if (model_6_percent / model_5_percent  < 0.75) {
                 risePart = YES;
-                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第六条跌 并且 没有超过第五条";
+                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第六条跌 并且 没有达到第五条75%";
             } else {
-                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第六条跌 并且 超过第五条";
+                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第六条跌 并且 超过第五条75%";
             }
         } else if (model_5_rise == YES && model_6_rise == YES && model_7_rise == NO && model_8_rise == YES) {//只有第七条 跌
-            if (model_7_percent < model_6_percent) {
+            if (model_7_percent / model_6_percent < 0.75) {
                 risePart = YES;
-                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第七条跌 并且 没有超过第六条";
+                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第七条跌 并且 没有达到第六条75%";
             } else {
-                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第七条跌 并且 超过第六条";
+                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第七条跌 并且 超过第六条75%";
             }
         } else if (model_5_rise == YES && model_6_rise == YES && model_7_rise == YES && model_8_rise == NO) {//只有第八条 跌
-            if (model_8_percent < model_7_percent) {
+            if (model_8_percent / model_7_percent < 0.75) {
                 risePart = YES;
-                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第八条跌 并且 没有超过第七条";
+                self.loadedKLineData[i].condition_2 = @"(满足)升的部分:  第八条跌 并且 没有达到第七条75%";
             } else {
-                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第八条跌 并且 超过第七条";
+                self.loadedKLineData[i].condition_2 = @"(不满足)升的部分:  第八条跌 并且 超过第七条75%";
             }
         } else if (model_5_rise == YES && model_6_rise == NO && model_7_rise == NO && model_8_rise == YES) {//第六条, 第七条 跌
             if ((model_6_percent + model_7_percent) / model_8_percent < 0.7) {
@@ -805,54 +968,8 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         } else {
             self.loadedKLineData[i].condition_2 = @"(不满足)升的部分";
         }
-        
-        //跌1%
-        BOOL specification_1_fallingPrecent = NO;
-        if ((model_4.open - model_1.close) / model_4.open >= 0.01) {
-            specification_1_fallingPrecent = YES;
-            float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
-            float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
-            float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
-            float model_4_percent_value = model_4_rise ? model_4_percent : -model_4_percent;
-            float percent = model_1_percent_value + model_2_percent_value + model_3_percent_value + model_4_percent_value;
-            self.loadedKLineData[i].condition_3 = [NSString stringWithFormat:@"(满足)实际跌: %.2f%%(K1 %.2f, K2 %.2f, K3 %.2f, K4 %.2f)",percent * 100, model_1_percent_value * 100, model_2_percent_value * 100, model_3_percent_value * 100, model_4_percent_value * 100];
-        } else {
-            float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
-            float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
-            float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
-            float model_4_percent_value = model_4_rise ? model_4_percent : -model_4_percent;
-            float percent = model_1_percent_value + model_2_percent_value + model_3_percent_value + model_4_percent_value;
-            self.loadedKLineData[i].condition_3 = [NSString stringWithFormat:@"(不满足)实际跌: %.2f%%(K1 %.2f, K2 %.2f, K3 %.2f, K4 %.2f)",percent * 100, model_1_percent_value * 100, model_2_percent_value * 100, model_3_percent_value * 100, model_4_percent_value * 100];
-        }
- 
-        //升1%
-        BOOL specification_1_risePrecent = NO;
-        if ((model_5.close - model_8.open) / model_8.open >= 0.01) {
-            specification_1_risePrecent = YES;
-            float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
-            float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
-            float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
-            float model_8_percent_value = model_8_rise ? model_8_percent : -model_8_percent;
-            float percent = model_5_percent_value + model_6_percent_value + model_7_percent_value + model_8_percent_value;
-            self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
-        } else {
-            float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
-            float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
-            float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
-            float model_8_percent_value = model_8_rise ? model_8_percent : -model_8_percent;
-            float percent = model_5_percent_value + model_6_percent_value + model_7_percent_value + model_8_percent_value;
-            self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(不满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
-        }
-        
-        if (fallingPart && risePart && specification_1_fallingPrecent && specification_1_risePrecent) {
-            self.loadedKLineData[i - 3].isMountainPeak = YES;
-            self.loadedKLineData[i - 3].mountainPeakTag = @"规范1";
-            self.loadedKLineData[i].condition_5 = @"全部满足 规范1";
-        }
-        
-        // ==============================================================
-        // 涨跌0.47% 规范2
-        // ==============================================================
+
+
         //跌0.47%
         BOOL specification_2_fallingPrecent = NO;
         if ((model_4.open - model_1.close) / model_4.open >= 0.0047) {
@@ -892,12 +1009,26 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         }
         
         if (fallingPart && risePart && specification_2_fallingPrecent && specification_2_risePrecent) {
-            self.loadedKLineData[i - 3].isMountainPeak = YES;
             self.loadedKLineData[i - 3].mountainPeakTag = @"规范2";
-            self.loadedKLineData[i].condition_5 = @"全部满足  规范2";
+            self.loadedKLineData[i].condition_5 = @"全部满足  规范2 涨跌0.47%  -0.47%";
         }
-    
+        
+
     }
+}
+
+// 清空条件属性
+- (void)clearConditionPropertiesForIndex:(NSInteger)index {
+    KLineModel *model = self.loadedKLineData[index];
+    model.condition_1 = nil;
+    model.condition_2 = nil;
+    model.condition_3 = nil;
+    model.condition_4 = nil;
+    model.condition_5 = nil;
+    model.condition_6 = nil;
+    model.condition_7 = nil;
+    model.condition_8 = nil;
+    model.condition_9 = nil;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
