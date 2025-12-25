@@ -822,22 +822,22 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             isSpecification3 = YES;
         }
         
-        // 如果满足规范三，直接跳过规范二的判断，继续下一轮循环
+        // 如果满足规范三，直接跳过下面规范四的判断，继续下一轮循环
         if (isSpecification3) {
             continue;
         }
         
         // ==============================================================
-        // 规范2
+        // 规范4
         // 第一条 到 第四条 跌幅最少0.47%
-        // 第五条 到 第八条 升幅最少0.47%
+        // 第五条 到 第八条 升幅最少0.21%
         
         //跌的部分
-        // 如果第三条升,升幅不能超过第四条75%
-        // 如果第二条升,升幅不能超过第三条75%
-        // 如果第一条升,升幅不能超过第二条75%
-        // 如果第二条, 第三条升(两条加起来)不能超过第四条的70%  (第一条跌多少目前没有规定)
-        // 如果第一条, 第二条升(两条加起来)不能超过第三条的70%  (第四条跌多少目前没有规定)
+        // 如果第三条升,升幅不能超过第四条75%  或者可以大于75%,但是第三条不能高于第四条,且第一条或者第二条跌幅是第三条的2倍
+        // 如果第二条升,升幅不能超过第三条75%  或者可以大于75%,但是第二条不能高于第三条,且第一条或者第四条跌幅是第二条的2倍
+        // 如果第一条升,升幅不能超过第二条75%  或者可以大于75%,但是第一条不能高于第二条,且第三条或者第四条跌幅是第一条的2倍
+        // 如果第二条, 第三条升(两条加起来)不能超过第四条的70%  或者可以大于70% 但是第二条, 第三条升(两条加起来)不能超过第四条 且第一条跌幅是第二条, 第三条升(两条加起来)的两倍
+        // 如果第一条, 第二条升(两条加起来)不能超过第三条的70%  或者可以大于70% 但是第一条, 第二条升(两条加起来)不能超过第三条 且第四条跌幅是第一条, 第二条升(两条加起来)的两倍
         // 如果第一条, 第三条 第一条升幅不能超过第二条的70%  第三条升幅不能超过第四条的70%
         // 如果第一条, 第二条, 第三条升(三条加起来)不能超过第四条的35%
         
@@ -863,35 +863,80 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 fallingPart = YES;
                 self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第三条升 并且 没有达到第四条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第三条升 但是 第三条升幅超过第四条75%";
+                if (model_3_percent < model_4_percent) {
+                    if ((model_1_percent > 0.004 && (model_1_percent / model_3_percent > 2)) || (model_2_percent > 0.004 && (model_2_percent / model_3_percent > 2))){
+                        self.loadedKLineData[i].condition_1 =@"(满足)跌的部分:第一条跌 跌幅是第三条的2倍以上\n  第二条跌 跌幅是第三条的2倍以上";
+                        fallingPart =YES;
+                    }else {
+                        self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                    }
+                } else {
+                    self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                }
             }
         } else if (model_1_rise == NO && model_2_rise == YES && model_3_rise == NO && model_4_rise == NO) {//只有第二条升
             if (model_2_percent / model_3_percent < 0.75) {
                 fallingPart = YES;
                 self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第二条升 并且 没有达到第三条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第二条升 但是 第二条升幅超过第三条75%";
+                if (model_2_percent < model_3_percent) {
+                    if ((model_1_percent > 0.004 && (model_1_percent / model_2_percent > 2)) || (model_4_percent > 0.004 && (model_4_percent / model_2_percent > 2))){
+                        self.loadedKLineData[i].condition_1 =@"(满足)跌的部分:第四条跌 跌幅是第二条的2倍以上\n第一条跌 跌幅是第二条的2倍以上";
+                        fallingPart =YES;
+                    }else {
+                        self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                    }
+                } else {
+                    self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                }
             }
         } else if (model_1_rise == YES && model_2_rise == NO && model_3_rise == NO && model_4_rise == NO) {//只有第一条升
             if (model_1_percent / model_2_percent < 0.75) {
                 fallingPart = YES;
                 self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第一条升 并且 没有达到第二条75%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分: 虽然第一条升 但是 第一条升幅超过第二条75%";
+                if (model_1_percent < model_2_percent) {
+                    if ((model_3_percent > 0.004 && (model_3_percent / model_1_percent > 2)) || (model_4_percent > 0.004 && (model_4_percent / model_1_percent > 2))){
+                        self.loadedKLineData[i].condition_1 =@"(满足)跌的部分:第三条跌 跌幅是第一条的2倍以上\n第四条跌 跌幅是第一条的2倍以上";
+                        fallingPart =YES;
+                    }else {
+                        self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                    }
+                } else {
+                    self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                }
             }
         } else if (model_1_rise == NO && model_2_rise == YES && model_3_rise == YES && model_4_rise == NO) {//第二条, 第三条升
             if ((model_2_percent + model_3_percent) / model_4_percent < 0.7){//第二条, 第三条 加起来没有 第四条 70%
                 fallingPart = YES;
                 self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第二条, 第三条升 并且 两条加起来\n不到第四条70%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:  虽然第二条, 第三条升 并且 两条加起来\n超过第四条70%";
+                if ((model_2_percent + model_3_percent) < model_4_percent) {
+                    if (model_1_percent > 0.004 && (model_1_percent / (model_2_percent + model_3_percent) > 2)){
+                        self.loadedKLineData[i].condition_1 =@"(满足)跌的部分:虽然第二第三条加起来超过第四条70%\n但是第一条的下跌是第二第三条加起来的两倍";
+                        fallingPart =YES;
+                    }else {
+                        self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                    }
+                } else {
+                    self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                }
             }
         } else if (model_1_rise == YES && model_2_rise == YES && model_3_rise == NO && model_4_rise == NO) {//第一条, 第二条升
             if ((model_1_percent + model_2_percent) / model_3_percent < 0.7) {//第一条, 第二条 加起来没有 第三条 70%
                 fallingPart = YES;
                 self.loadedKLineData[i].condition_1 = @"(满足)跌的部分:  第一条, 第二条升 并且 两条加起来\n不到第三条70%";
             } else {
-                self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:  虽然第一条, 第二条升 并且 两条加起来\n超过第三条70%";
+                if ((model_1_percent + model_2_percent) < model_3_percent) {
+                    if (model_4_percent > 0.004 && (model_4_percent / (model_1_percent + model_2_percent) > 2)){
+                        self.loadedKLineData[i].condition_1 =@"(满足)跌的部分:虽然第一第二条加起来超过第三条70%\n但是第四条的下跌是第一第二条加起来的两倍";
+                        fallingPart =YES;
+                    }else {
+                        self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                    }
+                } else {
+                    self.loadedKLineData[i].condition_1 = @"(不满足)跌的部分:第一条升幅超过第二条75%";
+                }
             }
         } else if (model_1_rise == NO && model_2_rise == YES && model_3_rise == NO && model_4_rise == YES) {//第一条涨, 第三条升
             if (model_3_percent / model_4_percent < 0.7 && model_1_percent / model_2_percent < 0.7) {//第三条上涨没有去到第四条的70% && 第一条上涨没有去到第二条的70%
@@ -971,9 +1016,9 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 
 
         //跌0.47%
-        BOOL specification_2_fallingPrecent = NO;
+        BOOL specification_4_fallingPrecent = NO;
         if ((model_4.open - model_1.close) / model_4.open >= 0.0047) {
-            specification_2_fallingPrecent = YES;
+            specification_4_fallingPrecent = YES;
             float model_1_percent_value = model_1_rise ? model_1_percent : -model_1_percent;
             float model_2_percent_value = model_2_rise ? model_2_percent : -model_2_percent;
             float model_3_percent_value = model_3_rise ? model_3_percent : -model_3_percent;
@@ -989,10 +1034,10 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             self.loadedKLineData[i].condition_3 = [NSString stringWithFormat:@"(不满足)实际跌: %.2f%%(K1 %.2f, K2 %.2f, K3 %.2f, K4 %.2f)",percent * 100, model_1_percent_value * 100, model_2_percent_value * 100, model_3_percent_value * 100, model_4_percent_value * 100];
         }
  
-        //升0.47%
-        BOOL specification_2_risePrecent = NO;
-        if ((model_5.close - model_8.open) / model_8.open >= 0.0047) {
-            specification_2_risePrecent = YES;
+        //升0.21%
+        BOOL specification_4_risePrecent = NO;
+        if ((model_5.close - model_8.open) / model_8.open >= 0.0021) {
+            specification_4_risePrecent = YES;
             float model_5_percent_value = model_5_rise ? model_5_percent : -model_5_percent;
             float model_6_percent_value = model_6_rise ? model_6_percent : -model_6_percent;
             float model_7_percent_value = model_7_rise ? model_7_percent : -model_7_percent;
@@ -1008,11 +1053,17 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             self.loadedKLineData[i].condition_4 = [NSString stringWithFormat:@"(不满足)实际升: %.2f%%(K5 %.2f, K6 %.2f, K7 %.2f, K8 %.2f)",percent * 100, model_5_percent_value * 100, model_6_percent_value * 100, model_7_percent_value * 100, model_8_percent_value * 100];
         }
         
-        if (fallingPart && risePart && specification_2_fallingPrecent && specification_2_risePrecent) {
-            self.loadedKLineData[i - 3].mountainPeakTag = @"规范2";
-            self.loadedKLineData[i].condition_5 = @"全部满足  规范2 涨跌0.47%  -0.47%";
+        BOOL isSpecification4 = NO;
+        if (fallingPart && risePart && specification_4_fallingPrecent && specification_4_risePrecent) {
+            isSpecification4 = YES;
+            self.loadedKLineData[i - 3].mountainPeakTag = @"规范4";
+            self.loadedKLineData[i].condition_5 = @"全部满足  规范4 涨跌大于0.47%  升大于0.21%";
         }
         
+        // 如果满足规范三，直接跳过下面规范四的判断，继续下一轮循环
+        if (isSpecification4) {
+            continue;
+        }
 
     }
 }
