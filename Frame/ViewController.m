@@ -1,9 +1,4 @@
-//
-//  ViewController.m
-//  Frame
-//
-//  Created by 冯汉栩 on 2021/2/7.
-//
+
 
 #import "ViewController.h"
 #define viewHeight 300 // 蜡烛图高度
@@ -11,6 +6,7 @@
 #define MaxVisibleKLineCount 300 // 每次提取限制300个数据
 #define MaxCacheKLineCount 600 // 数组限制最多600个可视数据
 #define volumeHeight 80  // 成交量图形高度
+#define present_0_23 0.0023
 
 // 计算结果模型
 @interface ResultModel : NSObject
@@ -732,10 +728,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         ResultModel *model_1_result = [self judge_KLine_1_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
         
         if (model_1_result.result && model_2_result.result && model_3_result.result && model_4_result.result && model_5_result.result && model_6_result.result && model_7_result.result && model_8_result.result) {
-//            if ((model_4.open - model_1.close) / model_1.open > 0.0035) {
-//
-//            }
-            self.loadedKLineData[i - 3].mountainPeakTag = @"规范1";
+            self.loadedKLineData[i - 3].mountainPeakTag = @"山峰1";
         }
         
         self.loadedKLineData[i - 3].condition_1 = model_1_result.prompt;
@@ -781,7 +774,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         //看第四条
                         if (rise4 == NO) {//第四条 跌
                             float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                            if (percentage_4_1 > 0.0035) {
+                            if (percentage_4_1 > present_0_23) {
                                 model.result = YES;
                                 model.prompt = [NSString stringWithFormat:@"1_D(满足) 第一条升,第二条跌,第三条跌,第四条跌, \n第一二条之间小于0.15%% 实际 %0.2f%%\n第一三条之间小于0.15%%, 实际 %0.2f%% \n第一四条之间大于0.35%%差距 实际 %0.2f%%",percentage_2_1*100,percentage_3_1*100,percentage_4_1*100];
                             } else { //
@@ -797,7 +790,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第四条
                     if (rise4 == NO) {
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {//
+                        if (percentage_4_1 > present_0_23) {//
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"1_G(满足) 第一条升,第二条跌,第三条升,\n第四条跌,第一第二条小于0.1%% 实际 %0.2f%%,\n第四条跟第一条大于0.35%%差距 实际 %0.2f%%",percentage_2_1*100,percentage_4_1*100];
                         } else { //
@@ -814,14 +807,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             //看第三条
             if (rise3 == NO) {// 第三条 跌
                 float percentage_3_1 = (model_3.open - model_1.close) / model_3.open;
-                if (percentage_3_1 > 0.0035) {// > 0.35%
+                if (percentage_3_1 > present_0_23) {// > 0.35%
                     model.result = YES;
                     model.prompt = [NSString stringWithFormat:@"1_J(满足) 第一条升,第二条升,第三条跌,\n第三条跟第一条的差距大于0.35%%差距 实际 %0.2f%%",percentage_3_1*100];
                 } else { // < 0.35%
                     //看第四条
                     if (rise4 == NO) {//第四条跌
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {// > 0.35%
+                        if (percentage_4_1 > present_0_23) {// > 0.35%
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"1_K(满足) 第一条升,第二条升,第三条跌,第四条跌,\n第三条跟第一条小于0.35%%  实际 %0.2f%%,\n第四条跟第一条大于0.35%%差距 实际 %0.2f%%",percentage_3_1*100,percentage_4_1*100];
                         } else {
@@ -837,7 +830,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 //看第四条
                 if (rise4 == NO) {//第四条跌
                     float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                    if (percentage_4_1 > 0.0035) {
+                    if (percentage_4_1 > present_0_23) {
                         model.result = YES;
                         model.prompt = [NSString stringWithFormat:@"1_N(满足)第一条升,第二条升,第三条升,第四条跌 \n第四条跌幅大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                     } else {
@@ -870,21 +863,21 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         //看第一条
         if (rise1 == NO) {//第一条跌
             float percentage_2_1 = (model_2.open / model_1.close) / model_2.open;
-            if (percentage_2_1 > 0.0035) {//跌幅小于0.35%
+            if (percentage_2_1 > present_0_23) {//跌幅小于0.35%
                 model.result = YES;
                 model.prompt = [NSString stringWithFormat:@"2_B(满足)第二条升,第一条跌,\n第二条跟第一条的跌幅大于0.35%%差距 实际%0.2f%%",percentage_2_1*100];
             } else {
                 //看第三条
                 if (rise3 == NO) {//第三条跌
                     float percentage_3_1 = (model_3.open - model_1.open) / model_3.open;
-                    if (percentage_3_1 > 0.0035) {
+                    if (percentage_3_1 > present_0_23) {
                         model.result = YES;
                         model.prompt = [NSString stringWithFormat:@"2_C(满足)第三条跌,第二条升,第一条升,\n第三条跌幅是第一条大于0.35%%差距 实际%0.2f%%",percentage_3_1*100];
                     } else {
                         //看第四条
                         if (rise4 == NO) {//第四条跌
                             float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
-                            if (percentage_4_1 > 0.0035) {
+                            if (percentage_4_1 > present_0_23) {
                                 model.result = YES;
                                 model.prompt = [NSString stringWithFormat:@"2_D(满足)第四条跌,第三条跌,第二条升,第一条跌,\n第四条跌幅是第一条大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                             } else {
@@ -900,7 +893,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第四条
                     if (rise4 == NO) {//第四条跌
                         float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"2_G(满足)第四条跌,第三条升,第二条升,第一条跌,\n第四条跌幅是第一条大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -917,14 +910,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             //看第三条
             if (rise3 == NO) {// 第三条跌
                 float percentage_3_1 = (model_3.open - model_1.close) / model_3.open;
-                if (percentage_3_1 > 0.0035) {
+                if (percentage_3_1 > present_0_23) {
                     model.result = YES;
                     model.prompt = [NSString stringWithFormat:@"2_J(满足)第一条升,升二条升,第三条跌,\n第三条跟第一条之间大于0.35%%差距 实际%0.2f%%",percentage_3_1*100];
                 } else {
                     //看第四条
                     if (rise4 == NO) {//第四条跌
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"2_K(满足)第一条升,升二条升,第三条跌,第四条跌,\n第四条跟第一条之间大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -940,7 +933,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 //看第四条
                 if (rise4 == NO) {//第四条跌
                     float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                    if (percentage_4_1 > 0.0035) {
+                    if (percentage_4_1 > present_0_23) {
                         model.result = YES;
                         model.prompt = [NSString stringWithFormat:@"2_N(满足)第一条升,升二条升,第三条升,第四条跌,\n第四条跟第一条之间大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                     } else {
@@ -983,7 +976,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第一条
                     if (rise1 == NO) {//第一条跌
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"3_C(满足) 第四条跌,第三条升,第二条跌,第一条跌\n 第四条跌幅跟第二条大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -992,7 +985,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         }
                     } else {//第一条升
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"3_E(满足),第四条跌,第三条升,第二条跌,第一条升\n 第四条跌幅跟第二条大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1004,7 +997,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第一条
                     if (rise1 == NO) {
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"3_G(满足) 第一条升,第二条升,第三条升,第四条跌,\n第四条跌幅跟第一条大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1042,7 +1035,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 //看第一条
                 if (rise1 == NO) {//第一条跌
                     float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                    if (percentage_4_1 > 0.0035) {
+                    if (percentage_4_1 > present_0_23) {
                         model.result = YES;
                         model.prompt = [NSString stringWithFormat:@"4_A(满足) 第四条跌, 第三条跌, 第二条跌, 第一条跌, \n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                     } else {
@@ -1051,7 +1044,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     }
                 } else {
                     float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                    if (percentage_4_1 > 0.0035) {
+                    if (percentage_4_1 > present_0_23) {
                         model.result = YES;
                         model.prompt = [NSString stringWithFormat:@"4_C(满足) 第四条跌, 第三条跌, 第二条跌, 第一条升,\n 第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                     } else {
@@ -1065,7 +1058,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第一条
                     if (rise1 == NO) {//第一条跌
                         float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"4_E(满足) 第四条跌, 第三条跌, 第二条升,第一条跌 \n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1074,7 +1067,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         }
                     } else {//第一条升
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"4_G(满足) 第四条跌, 第三条跌, 第二条升,第一条升 \n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1095,7 +1088,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     //看第一条
                     if (rise1 == NO) {//第一条跌
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"4_J(满足) 第四条跌, 第三条升, 第二条跌, 第一条跌, \n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1104,7 +1097,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         }
                     } else {//第一条升
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                        if (percentage_4_1 > 0.0035) {
+                        if (percentage_4_1 > present_0_23) {
                             model.result = YES;
                             model.prompt = [NSString stringWithFormat:@"4_L(满足) 第四条跌, 第三条升, 第二条跌, 第一条升, \n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
@@ -1118,7 +1111,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         //看第一条
                         if (rise1 == NO) {//第一条跌
                             float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
-                            if (percentage_4_1 > 0.0035) {
+                            if (percentage_4_1 > present_0_23) {
                                 model.result = YES;
                                 model.prompt = [NSString stringWithFormat:@"4_N(满足) 第四条跌, 第三条升, 第二条升, 第一条跌,\n第四条跟第一条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                             } else {
@@ -1127,7 +1120,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                             }
                         } else {//第一条升
                             float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
-                            if (percentage_4_1 > 0.0035) {
+                            if (percentage_4_1 > present_0_23) {
                                 model.result = YES;
                                 model.prompt = [NSString stringWithFormat:@"4_P(满足) 第四条跌, 第三条升, 第二条升, 第一条升, \n第一条跟第四条的差距大于0.35%%差距 实际%0.2f%%",percentage_4_1*100];
                             } else {
@@ -1333,9 +1326,4 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 @end
-
-
-
-
-
 
