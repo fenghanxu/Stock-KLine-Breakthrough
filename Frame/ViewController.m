@@ -737,6 +737,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         self.loadedKLineData[i - 3].condition_7 = model_7_result.prompt;
         self.loadedKLineData[i - 3].condition_8 = model_8_result.prompt;
         
+        //特殊1
         if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
             ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
             if (model_1_result.result &&
@@ -746,19 +747,81 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result) {
-                self.loadedKLineData[i - 3].mountainPeakTag = @"特殊";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"特1";
+                
+                self.loadedKLineData[i - 3].condition_1 = model_1_result.prompt;
+                self.loadedKLineData[i - 3].condition_2 = model_2_result.prompt;
+                self.loadedKLineData[i - 3].condition_3 = model_3_result.prompt;
+                self.loadedKLineData[i - 3].condition_4 = model_4_result.prompt;
+                self.loadedKLineData[i - 3].condition_5 = model_5_result.prompt;
+                self.loadedKLineData[i - 3].condition_6 = model_6_result.prompt;
+                self.loadedKLineData[i - 3].condition_7 = model_7_result_special.prompt;
+                self.loadedKLineData[i - 3].condition_8 = @"不需要";
             }
-            
-            self.loadedKLineData[i - 3].condition_1 = model_1_result.prompt;
-            self.loadedKLineData[i - 3].condition_2 = model_2_result.prompt;
-            self.loadedKLineData[i - 3].condition_3 = model_3_result.prompt;
-            self.loadedKLineData[i - 3].condition_4 = model_4_result.prompt;
-            self.loadedKLineData[i - 3].condition_5 = model_5_result.prompt;
-            self.loadedKLineData[i - 3].condition_6 = model_6_result.prompt;
-            self.loadedKLineData[i - 3].condition_7 = model_7_result_special.prompt;
-            self.loadedKLineData[i - 3].condition_8 = @"不需要";
         }
-
+        
+        //特殊2
+        if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
+            ResultModel *special_2 = [self special_falling_1_falling_3_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            if (special_2.result &&
+                model_5_result.result &&
+                model_6_result.result &&
+                model_7_result_special.result){
+                self.loadedKLineData[i - 3].mountainPeakTag = @"特2";
+                
+                self.loadedKLineData[i - 3].condition_1 = special_2.prompt;
+                self.loadedKLineData[i - 3].condition_2 = @"不需要";
+                self.loadedKLineData[i - 3].condition_3 = @"不需要";
+                self.loadedKLineData[i - 3].condition_4 = @"不需要";
+                self.loadedKLineData[i - 3].condition_5 = model_5_result.prompt;
+                self.loadedKLineData[i - 3].condition_6 = model_6_result.prompt;
+                self.loadedKLineData[i - 3].condition_7 = model_7_result_special.prompt;
+                self.loadedKLineData[i - 3].condition_8 = @"不需要";
+            }
+        }
+        
+        //特殊3
+        if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
+            ResultModel *special_3 = [self special_falling_2_falling_2_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            if (special_3.result &&
+                model_5_result.result &&
+                model_6_result.result &&
+                model_7_result_special.result){
+                self.loadedKLineData[i - 3].mountainPeakTag = @"特3";
+                
+                self.loadedKLineData[i - 3].condition_1 = special_3.prompt;
+                self.loadedKLineData[i - 3].condition_2 = @"不需要";
+                self.loadedKLineData[i - 3].condition_3 = @"不需要";
+                self.loadedKLineData[i - 3].condition_4 = @"不需要";
+                self.loadedKLineData[i - 3].condition_5 = model_5_result.prompt;
+                self.loadedKLineData[i - 3].condition_6 = model_6_result.prompt;
+                self.loadedKLineData[i - 3].condition_7 = model_7_result_special.prompt;
+                self.loadedKLineData[i - 3].condition_8 = @"不需要";
+            }
+        }
+        
+        //特殊4
+        if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
+            ResultModel *special_4 = [self special_falling_3_falling_1_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            if (special_4.result &&
+                model_5_result.result &&
+                model_6_result.result &&
+                model_7_result_special.result){
+                self.loadedKLineData[i - 3].mountainPeakTag = @"特3";
+                
+                self.loadedKLineData[i - 3].condition_1 = special_4.prompt;
+                self.loadedKLineData[i - 3].condition_2 = @"不需要";
+                self.loadedKLineData[i - 3].condition_3 = @"不需要";
+                self.loadedKLineData[i - 3].condition_4 = @"不需要";
+                self.loadedKLineData[i - 3].condition_5 = model_5_result.prompt;
+                self.loadedKLineData[i - 3].condition_6 = model_6_result.prompt;
+                self.loadedKLineData[i - 3].condition_7 = model_7_result_special.prompt;
+                self.loadedKLineData[i - 3].condition_8 = @"不需要";
+            }
+        }
         
     }
 }
@@ -898,10 +961,10 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                             float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
                             if (percentage_4_1 > present_0_23) {
                                 model.result = YES;
-                                model.prompt = [NSString stringWithFormat:@"2_D(满足)第四条跌,第三条跌,第二条升,第一条跌,\n第四条跌幅是第一条大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                                model.prompt = [NSString stringWithFormat:@"2_D(满足)第四条跌,第三条跌,第二条升,第一条跌,\n第四条跌幅是第一条的开盘价大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                             } else {
                                 model.result = NO;
-                                model.prompt = [NSString stringWithFormat:@"2_E(不满足)第四条跌,第三条跌,第二条升,第一条跌,\n第四条跌幅是第一条小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                                model.prompt = [NSString stringWithFormat:@"2_E(不满足)第四条跌,第三条跌,第二条升,第一条跌,\n第四条跌幅是第一条的开盘价小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                             }
                         } else {//第四条升
                             model.result = NO;
@@ -1079,19 +1142,19 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         float percentage_4_1 = (model_4.open - model_1.open) / model_4.open;
                         if (percentage_4_1 > present_0_23) {
                             model.result = YES;
-                            model.prompt = [NSString stringWithFormat:@"4_E(满足) 第四条跌, 第三条跌, 第二条升,第一条跌 \n第四条跟第一条的差距大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                            model.prompt = [NSString stringWithFormat:@"4_E(满足) 第四条跌, 第三条跌, 第二条升,第一条跌 \n第四条跟第一条的开盘价差距大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
                             model.result = NO;
-                            model.prompt = [NSString stringWithFormat:@"4_F(不满足) 第四条跌, 第三条跌, 第二条升,第一条跌 \n第四条跟第一条的差距小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                            model.prompt = [NSString stringWithFormat:@"4_F(不满足) 第四条跌, 第三条跌, 第二条升,第一条跌 \n第四条跟第一条的开盘价差距小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                         }
                     } else {//第一条升
                         float percentage_4_1 = (model_4.open - model_1.close) / model_4.open;
                         if (percentage_4_1 > present_0_23) {
                             model.result = YES;
-                            model.prompt = [NSString stringWithFormat:@"4_G(满足) 第四条跌, 第三条跌, 第二条升,第一条升 \n第四条跟第一条的差距大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                            model.prompt = [NSString stringWithFormat:@"4_G(满足) 第四条跌, 第三条跌, 第二条升,第一条升 \n第四条跟第一条的收盘价差距大于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                         } else {
                             model.result = NO;
-                            model.prompt = [NSString stringWithFormat:@"4_H(不满足) 第四条跌, 第三条跌, 第二条升,第一条升 \n第四条跟第一条的差距小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
+                            model.prompt = [NSString stringWithFormat:@"4_H(不满足) 第四条跌, 第三条跌, 第二条升,第一条升 \n第四条跟第一条的收盘价差距小于0.23%%差距 实际%0.2f%%",percentage_4_1*100];
                         }
                     }
                 } else {
@@ -1263,33 +1326,170 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
-
-
+//特殊1
 -(ResultModel *)specialJudge_kLine_7_rise7:(BOOL)rise_7 withModel_7:(KLineModel *)model_7 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
     ResultModel *model = [ResultModel new];
     if (rise_5 == YES) { // 第五条升
         //看第七条
         if (rise_7 == YES) { // 第七条升
             model.result = YES;
-            model.prompt = @"6_A(满足) 第五条升, 第六条升";
+            model.prompt = @"特殊1_7_A(满足) 第五条升, 第七条升";
         } else { // 第七条跌
             if (model_7.open > model_5.close) {
                 float percentage_7_5 = (model_7.open - model_5.close) / model_7.open;
                 if (percentage_7_5 < 0.003) {
                     model.result = YES;
-                    model.prompt = [NSString stringWithFormat:@"6_B(满足) 第五条升, 第七条跌, 第七条开盘价跟第五条收盘价\n小于0.3%%的差距 实际%0.2f%%",percentage_7_5*100];
+                    model.prompt = [NSString stringWithFormat:@"特殊1_7_B(满足) 第五条升, 第七条跌, 第七条开盘价跟第五条收盘价\n小于0.3%%的差距 实际%0.2f%%",percentage_7_5*100];
                 } else {
                     model.result = NO;
-                    model.prompt = [NSString stringWithFormat:@"6_C(不满足) 第五条升, 第七条跌, 第七条开盘价跟第五条收盘价\n大于0.3%%的差距 实际%0.2f%%",percentage_7_5*100];
+                    model.prompt = [NSString stringWithFormat:@"特殊1_7_C(不满足) 第五条升, 第七条跌, 第七条开盘价跟第五条收盘价\n大于0.3%%的差距 实际%0.2f%%",percentage_7_5*100];
                 }
             } else {
                 model.result = YES;
-                model.prompt = @"6_D(满足) 第五条升, 第七条跌, \n第七条开盘价没有超过第五条收盘价";
+                model.prompt = @"特殊1_7_D(满足) 第五条升, 第七条跌, \n第七条开盘价没有超过第五条收盘价";
             }
         }
     } else { // 第五条跌
         model.result = NO;
-        model.prompt = @"6_E(不满足) 第五条跌 形态破坏";
+        model.prompt = @"特殊1_7_E(不满足) 第五条跌 形态破坏";
+    }
+    return model;
+}
+
+//特殊2: 一条跌,3条升
+-(ResultModel *)special_falling_1_falling_3_rise_rise1:(BOOL)rise1
+                                           withModel_1:(KLineModel *)model_1
+                                            withRise_2:(BOOL)rise2
+                                           withModel_2:(KLineModel *)model_2
+                                            withRise_3:(BOOL)rise3
+                                           withModel_3:(KLineModel *)model_3
+                                            withRise_4:(BOOL)rise4
+                                           withModel_4:(KLineModel *)model_4 {
+    ResultModel *model = [ResultModel new];
+    if (rise4 == NO) {//第四条跌
+        if ((model_4.open - model_4.close) / model_4.open > 0.005) {
+            //看第三条
+            if (rise3 == YES) {//第三条升
+                float percentage_4 = (model_4.open - model_4.close) / model_4.open;
+                float percentage_3 = (model_3.close - model_3.open) / model_3.open;
+                if (percentage_4 / percentage_3 > 2) {
+                    //看第二条
+                    if (rise2== YES) {//第二条升
+                        //看第一条
+                        if (rise1== YES) {//第一条升
+                            model.result = YES;
+                            model.prompt = @"特殊2_A(满足)第四条跌,第三条升,第二条升,第一条升 \n第四条跌幅跟第三条升幅达到2倍以上";
+                        } else {
+                            model.result = NO;
+                            model.prompt = @"特殊2_B(不满足) 第一条跌 形态破坏";
+                        }
+                    } else {
+                        model.result = NO;
+                        model.prompt = @"特殊2_C(不满足) 第二条跌 形态破坏";
+                    }
+                } else {
+                    model.result = NO;
+                    model.prompt = @"特殊2_D(不满足) 第四条跌幅跟第三条升幅没有达到2倍以上";
+                }
+            } else {//第三条跌
+                model.result = NO;
+                model.prompt = @"特殊2_E(不满足) 第三条升 形态破坏";
+            }
+        } else {
+            model.result = NO;
+            model.prompt = @"特殊2_F(不满足) 第四条下跌幅度没有超过0.5%";
+        }
+    } else {//第四条升
+        model.result = NO;
+        model.prompt = @"特殊2_G(不满足) 第四条升 形态破坏";
+    }
+    return model;
+}
+
+//特殊3: 两条跌,两条升
+-(ResultModel *)special_falling_2_falling_2_rise_rise1:(BOOL)rise1
+                                           withModel_1:(KLineModel *)model_1
+                                            withRise_2:(BOOL)rise2
+                                           withModel_2:(KLineModel *)model_2
+                                            withRise_3:(BOOL)rise3
+                                           withModel_3:(KLineModel *)model_3
+                                            withRise_4:(BOOL)rise4
+                                           withModel_4:(KLineModel *)model_4 {
+    ResultModel *model = [ResultModel new];
+    
+    if (rise4 == NO) {//第四条跌
+        //看第三条
+        if (rise3 == NO) {//第三条跌
+            if ((model_4.open - model_3.close) / model_4.open > 0.0045) {
+                //看第二条
+                if (rise2 == YES) {//第二条升
+                    //看第一条
+                    if (rise1 == YES) {//第一条升
+                        model.result = YES;
+                        model.prompt = @"特殊3_A(满足) 第四条跌,第三条跌,第二条升,第一条升, \n第四条和第三条加起来下跌幅度小于0.45%";
+                    } else {
+                        model.result = NO;
+                        model.prompt = @"特殊3_B(不满足) 第一条跌 形态破坏";
+                    }
+                } else {
+                    model.result = NO;
+                    model.prompt = @"特殊3_C(不满足) 第二条跌 形态破坏";
+                }
+            } else {
+                model.result = NO;
+                model.prompt = @"特殊3_D(不满足) 第四条跌,第三条跌,第四条和第三条加起来下跌幅度小于0.45%";
+            }
+        } else {
+            model.result = NO;
+            model.prompt = @"特殊3_E(不满足) 第三条升 形态破坏";
+        }
+    } else {//第四条升
+        model.result = NO;
+        model.prompt = @"特殊3_F(不满足) 第四条升 形态破坏";
+    }
+
+    return model;
+}
+
+//特殊4: 三条跌,一条升
+-(ResultModel *)special_falling_3_falling_1_rise_rise1:(BOOL)rise1
+                                           withModel_1:(KLineModel *)model_1
+                                            withRise_2:(BOOL)rise2
+                                           withModel_2:(KLineModel *)model_2
+                                            withRise_3:(BOOL)rise3
+                                           withModel_3:(KLineModel *)model_3
+                                            withRise_4:(BOOL)rise4
+                                           withModel_4:(KLineModel *)model_4 {
+    ResultModel *model = [ResultModel new];
+    if (rise4 == NO) {//第四条跌
+        //看第三条
+        if (rise3 == NO) {
+            //看第二条
+            if (rise2 == NO) {
+                if ((model_4.open - model_2.close) / model_4.open > 0.0046) {//0.46%
+                    //看第一条
+                    if (rise1 == YES) {
+                        model.result = YES;
+                        model.prompt = @"特殊4_A第四条跌,第三条跌,第二条跌,第一条升,\n第四条到第二条跌幅大于0.46%";
+                    } else {
+                        model.result = NO;
+                        model.prompt = @"特殊4_B(不满足) 第一条跌 形态破坏";
+                    }
+                } else {
+                    model.result = NO;
+                    model.prompt = @"特殊4_C(不满足)第四条跌,第三条跌,第二条跌 第四条到第二条跌幅小于0.46%";
+                }
+            } else {
+                model.result = NO;
+                model.prompt = @"特殊4_D(不满足) 第二条升 形态破坏";
+            }
+        } else {
+            model.result = NO;
+            model.prompt = @"特殊4_F(不满足) 第三条升 形态破坏";
+        }
+    } else {//第四条升
+        model.result = NO;
+        model.prompt = @"特殊4_H(不满足) 第四条升 形态破坏";
     }
     return model;
 }
