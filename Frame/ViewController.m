@@ -580,7 +580,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     KLineChartView *chartView = [[KLineChartView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - chartHeight - SAFE_AREA_BOTTOM, width, chartHeight)];
     chartView.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.2];
     chartView.visibleKLineData = self.loadedKLineData;
-    [self newFindPeaksInData_0];
+    [self findMountain];
     
     [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [self.scrollView addSubview:chartView];
@@ -622,7 +622,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return [self.allKLineData subarrayWithRange:NSMakeRange(start, end - start)];
 }
 
--(void)newFindPeaksInData_0 {
+-(void)findMountain {
     
     if (self.loadedKLineData.count < 8) return;
     
@@ -715,14 +715,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         // 山峰1
         // ==============================================================
         
-        ResultModel *model_5_result = [self judge_kLine_5_rise5:model_5_rise];
-        ResultModel *model_6_result = [self judge_kLine_6_rise6:model_6_rise withModel_6:model_6 withRise_5:model_5_rise withModel_5:model_5];
-        ResultModel *model_7_result = [self judge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
-        ResultModel *model_8_result = [self judge_kLine_8_rise8:model_8_rise withModel_8:model_8 withRise_5:model_5_rise withModel_5:model_5];
-        ResultModel *model_4_result = [self judge_KLine_4_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-        ResultModel *model_3_result = [self judge_KLine_3_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-        ResultModel *model_2_result = [self judge_KLine_2_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-        ResultModel *model_1_result = [self judge_KLine_1_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+        ResultModel *model_5_result = [self judge_kLine_5_rise_5:model_5_rise];
+        ResultModel *model_6_result = [self judge_kLine_6_rise_6:model_6_rise withModel_6:model_6 withRise_5:model_5_rise withModel_5:model_5];
+        ResultModel *model_7_result = [self judge_kLine_7_rise_7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+        ResultModel *model_8_result = [self judge_kLine_8_rise_8:model_8_rise withModel_8:model_8 withRise_5:model_5_rise withModel_5:model_5];
+        ResultModel *model_4_result = [self judge_KLine_4_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+        ResultModel *model_3_result = [self judge_KLine_3_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+        ResultModel *model_2_result = [self judge_KLine_2_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+        ResultModel *model_1_result = [self judge_KLine_1_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
         
         if (model_1_result.result && model_2_result.result && model_3_result.result && model_4_result.result && model_5_result.result && model_6_result.result && model_7_result.result && model_8_result.result) {
             self.loadedKLineData[i - 3].mountainPeakTag = @"山峰";
@@ -739,7 +739,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         //特殊1
         if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
-            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            ResultModel *model_7_result_special = [self special_judge_kLine_7_rise_7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
             if (model_1_result.result &&
                 model_2_result.result &&
                 model_3_result.result &&
@@ -762,8 +762,8 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         //特殊2
         if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
-            ResultModel *special_2 = [self special_falling_1_falling_3_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            ResultModel *special_2 = [self special_falling_1_falling_3_rise_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self special_judge_kLine_7_rise_7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
             if (special_2.result &&
                 model_5_result.result &&
                 model_6_result.result &&
@@ -783,8 +783,8 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         //特殊3
         if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
-            ResultModel *special_3 = [self special_falling_2_falling_2_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            ResultModel *special_3 = [self special_falling_2_falling_2_rise_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self special_judge_kLine_7_rise_7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
             if (special_3.result &&
                 model_5_result.result &&
                 model_6_result.result &&
@@ -804,13 +804,13 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         
         //特殊4
         if (self.loadedKLineData[i - 3].mountainPeakTag == nil) {
-            ResultModel *special_4 = [self special_falling_3_falling_1_rise_rise1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
-            ResultModel *model_7_result_special = [self specialJudge_kLine_7_rise7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
+            ResultModel *special_4 = [self special_falling_3_falling_1_rise_rise_1:model_1_rise withModel_1:model_1 withRise_2:model_2_rise withModel_2:model_2 withRise_3:model_3_rise withModel_3:model_3 withRise_4:model_4_rise withModel_4:model_4];
+            ResultModel *model_7_result_special = [self special_judge_kLine_7_rise_7:model_7_rise withModel_7:model_7 withRise_5:model_5_rise withModel_5:model_5];
             if (special_4.result &&
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result){
-                self.loadedKLineData[i - 3].mountainPeakTag = @"特3";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"特4";
                 
                 self.loadedKLineData[i - 3].condition_1 = special_4.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -826,14 +826,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     }
 }
 
--(ResultModel *)judge_KLine_1_rise1:(BOOL)rise1
-                        withModel_1:(KLineModel *)model_1
-                         withRise_2:(BOOL)rise2
-                        withModel_2:(KLineModel *)model_2
-                         withRise_3:(BOOL)rise3
-                        withModel_3:(KLineModel *)model_3
-                         withRise_4:(BOOL)rise4
-                        withModel_4:(KLineModel *)model_4 {
+-(ResultModel *)judge_KLine_1_rise_1:(BOOL)rise1
+                         withModel_1:(KLineModel *)model_1
+                          withRise_2:(BOOL)rise2
+                         withModel_2:(KLineModel *)model_2
+                          withRise_3:(BOOL)rise3
+                         withModel_3:(KLineModel *)model_3
+                          withRise_4:(BOOL)rise4
+                         withModel_4:(KLineModel *)model_4 {
     ResultModel *model = [ResultModel new];
     if (rise1 == NO) {
         model.result = YES;
@@ -929,14 +929,14 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_KLine_2_rise1:(BOOL)rise1
-                        withModel_1:(KLineModel *)model_1
-                         withRise_2:(BOOL)rise2
-                        withModel_2:(KLineModel *)model_2
-                         withRise_3:(BOOL)rise3
-                        withModel_3:(KLineModel *)model_3
-                         withRise_4:(BOOL)rise4
-                        withModel_4:(KLineModel *)model_4 {
+-(ResultModel *)judge_KLine_2_rise_1:(BOOL)rise1
+                         withModel_1:(KLineModel *)model_1
+                          withRise_2:(BOOL)rise2
+                         withModel_2:(KLineModel *)model_2
+                          withRise_3:(BOOL)rise3
+                         withModel_3:(KLineModel *)model_3
+                          withRise_4:(BOOL)rise4
+                         withModel_4:(KLineModel *)model_4 {
     ResultModel *model = [ResultModel new];
     if (rise2 == NO) {//第二条跌
         model.result = YES;
@@ -1033,7 +1033,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 
--(ResultModel *)judge_KLine_3_rise1:(BOOL)rise1
+-(ResultModel *)judge_KLine_3_rise_1:(BOOL)rise1
                         withModel_1:(KLineModel *)model_1
                          withRise_2:(BOOL)rise2
                         withModel_2:(KLineModel *)model_2
@@ -1100,7 +1100,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_KLine_4_rise1:(BOOL)rise1
+-(ResultModel *)judge_KLine_4_rise_1:(BOOL)rise1
                         withModel_1:(KLineModel *)model_1
                          withRise_2:(BOOL)rise2
                         withModel_2:(KLineModel *)model_2
@@ -1227,7 +1227,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_kLine_8_rise8:(BOOL)rise_8 withModel_8:(KLineModel *)model_8 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5{
+-(ResultModel *)judge_kLine_8_rise_8:(BOOL)rise_8 withModel_8:(KLineModel *)model_8 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5{
     ResultModel *model = [ResultModel new];
     if (rise_5 == YES) { // 第五条升
         //看第八条
@@ -1256,7 +1256,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_kLine_7_rise7:(BOOL)rise_7 withModel_7:(KLineModel *)model_7 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
+-(ResultModel *)judge_kLine_7_rise_7:(BOOL)rise_7 withModel_7:(KLineModel *)model_7 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
     ResultModel *model = [ResultModel new];
     if (rise_5 == YES) { // 第五条升
         //看第七条
@@ -1285,7 +1285,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_kLine_6_rise6:(BOOL)rise_6 withModel_6:(KLineModel *)model_6 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
+-(ResultModel *)judge_kLine_6_rise_6:(BOOL)rise_6 withModel_6:(KLineModel *)model_6 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
     ResultModel *model = [ResultModel new];
     if (rise_5 == YES) { // 第五条升
         //看第六条
@@ -1314,7 +1314,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     return model;
 }
 
--(ResultModel *)judge_kLine_5_rise5:(BOOL)rise5 {
+-(ResultModel *)judge_kLine_5_rise_5:(BOOL)rise5 {
     ResultModel *model = [ResultModel new];
     if (rise5 == YES) {
         model.result = YES;
@@ -1327,7 +1327,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 //特殊1
--(ResultModel *)specialJudge_kLine_7_rise7:(BOOL)rise_7 withModel_7:(KLineModel *)model_7 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
+-(ResultModel *)special_judge_kLine_7_rise_7:(BOOL)rise_7 withModel_7:(KLineModel *)model_7 withRise_5:(BOOL)rise_5 withModel_5:(KLineModel *)model_5 {
     ResultModel *model = [ResultModel new];
     if (rise_5 == YES) { // 第五条升
         //看第七条
@@ -1357,7 +1357,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 //特殊2: 一条跌,3条升
--(ResultModel *)special_falling_1_falling_3_rise_rise1:(BOOL)rise1
+-(ResultModel *)special_falling_1_falling_3_rise_rise_1:(BOOL)rise1
                                            withModel_1:(KLineModel *)model_1
                                             withRise_2:(BOOL)rise2
                                            withModel_2:(KLineModel *)model_2
@@ -1407,7 +1407,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 //特殊3: 两条跌,两条升
--(ResultModel *)special_falling_2_falling_2_rise_rise1:(BOOL)rise1
+-(ResultModel *)special_falling_2_falling_2_rise_rise_1:(BOOL)rise1
                                            withModel_1:(KLineModel *)model_1
                                             withRise_2:(BOOL)rise2
                                            withModel_2:(KLineModel *)model_2
@@ -1452,7 +1452,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 //特殊4: 三条跌,一条升
--(ResultModel *)special_falling_3_falling_1_rise_rise1:(BOOL)rise1
+-(ResultModel *)special_falling_3_falling_1_rise_rise_1:(BOOL)rise1
                                            withModel_1:(KLineModel *)model_1
                                             withRise_2:(BOOL)rise2
                                            withModel_2:(KLineModel *)model_2
@@ -1536,7 +1536,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 
             // 更新图表
             self.chartView.visibleKLineData = self.loadedKLineData;
-            [self newFindPeaksInData_0];
+            [self findMountain];
             CGFloat newWidth = self.loadedKLineData.count * candleFullWidth;
             self.chartView.frame = CGRectMake(0, self.chartView.frame.origin.y, newWidth, self.chartView.frame.size.height);
             self.scrollView.contentSize = CGSizeMake(newWidth, self.scrollView.contentSize.height);
@@ -1561,7 +1561,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 
             // 更新图表
             self.chartView.visibleKLineData = self.loadedKLineData;
-            [self newFindPeaksInData_0];
+            [self findMountain];
             CGFloat newWidth = self.loadedKLineData.count * candleFullWidth;
             self.chartView.frame = CGRectMake(0, self.chartView.frame.origin.y, newWidth, self.chartView.frame.size.height);
             self.scrollView.contentSize = CGSizeMake(newWidth, self.scrollView.contentSize.height);
@@ -1576,4 +1576,5 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 }
 
 @end
+
 
