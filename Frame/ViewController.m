@@ -718,7 +718,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 
 }
 
-#pragma mark - 寻找山峰
+#pragma mark - 寻找山峰和低谷
 -(void)findMountain {
     
     if (self.loadedKLineData.count < 8) return;
@@ -844,7 +844,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result) {
-                self.loadedKLineData[i - 3].mountainPeakTag = @"山特1";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"山峰";
                 
                 self.loadedKLineData[i - 3].condition_1 = model_1_result.prompt;
                 self.loadedKLineData[i - 3].condition_2 = model_2_result.prompt;
@@ -865,7 +865,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result){
-                self.loadedKLineData[i - 3].mountainPeakTag = @"山特2";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"山峰";
                 
                 self.loadedKLineData[i - 3].condition_1 = special_2.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -886,7 +886,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result){
-                self.loadedKLineData[i - 3].mountainPeakTag = @"山特3";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"山峰";
                 
                 self.loadedKLineData[i - 3].condition_1 = special_3.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -907,7 +907,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                 model_5_result.result &&
                 model_6_result.result &&
                 model_7_result_special.result){
-                self.loadedKLineData[i - 3].mountainPeakTag = @"山特4";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"山峰";
                 
                 self.loadedKLineData[i - 3].condition_1 = special_4.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -987,7 +987,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
             if (r1.result && r2.result && r3.result && r4.result &&
                 r5.result && r6.result && sp7.result) {
                 
-                self.loadedKLineData[i - 3].mountainPeakTag = @"低特1";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"低谷";
                 
                 self.loadedKLineData[i - 3].condition_1 = r1.prompt;
                 self.loadedKLineData[i - 3].condition_2 = r2.prompt;
@@ -1016,7 +1016,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                                                     withModel_5:model_5];
             
             if (sp2.result && r5.result && r6.result && r7.result) {
-                self.loadedKLineData[i - 3].mountainPeakTag = @"低特2";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"低谷";
                 
                 self.loadedKLineData[i - 3].condition_1 = sp2.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -1046,7 +1046,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                                                     withModel_5:model_5];
             
             if (sp3.result && r5.result && r6.result && r7.result) {
-                self.loadedKLineData[i - 3].mountainPeakTag = @"低特3";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"低谷";
                 
                 self.loadedKLineData[i - 3].condition_1 = sp3.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -1075,7 +1075,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                                                     withModel_5:model_5];
             
             if (sp4.result && r5.result && r6.result && r7.result) {
-                self.loadedKLineData[i - 3].mountainPeakTag = @"低特4";
+                self.loadedKLineData[i - 3].mountainPeakTag = @"低谷";
                 
                 self.loadedKLineData[i - 3].condition_1 = sp4.prompt;
                 self.loadedKLineData[i - 3].condition_2 = @"不需要";
@@ -2799,193 +2799,167 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     model.condition_9 = nil;
 }
 
-- (void)backtestByPeakAndValleyRule {
-
-    if (self.allKLineData.count == 0) return;
-
-    double capital = 1.0;
-
-    BOOL inPosition = NO;
-    BOOL isLong = NO;   // YES=做多，NO=做空
-
-    NSInteger buyIndex = -1;
-    double buyPrice = 0;
-
-    // 当前关注的目标
-    NSInteger watchingIndex = -1;
-    NSString *watchingType = @""; // @"山峰" / @"低谷"
-
-    // 用于卖出比较
-    double lastPeakOrValleyOpen = 0;
-
-    NSInteger tradeCount = 0;
-    NSInteger winCount = 0;
-
-    NSMutableArray<NSNumber *> *returns = [NSMutableArray array];
-    NSMutableDictionary<NSNumber *, NSNumber *> *loseStreakDict = [NSMutableDictionary dictionary];
-    NSInteger currentLoseStreak = 0;
-
+- (NSString *)timeString:(NSTimeInterval)ts {
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:ts];
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
-    fmt.dateFormat = @"yyyy-MM-dd HH";
+    fmt.dateFormat = @"yyyy-MM-dd HH:mm";
+    return [fmt stringFromDate:date];
+}
 
-    for (NSInteger i = 0; i < self.allKLineData.count; i++) {
-
-        KLineModel *model = self.allKLineData[i];
-
-        // =============================
-        // ① 更新关注目标（无仓位）
-        // =============================
-        if (!inPosition && model.mountainPeakTag.length > 0) {
-
-            if ([model.mountainPeakTag containsString:@"山峰"] ||
-                [model.mountainPeakTag containsString:@"山特1"] ||
-                [model.mountainPeakTag containsString:@"山特2"] ||
-                [model.mountainPeakTag containsString:@"山特3"] ||
-                [model.mountainPeakTag containsString:@"山特4"]){
-                watchingIndex = i;
-                watchingType = @"山峰";
-            } else if ([model.mountainPeakTag containsString:@"低谷"] ||
-                       [model.mountainPeakTag containsString:@"低特1"] ||
-                       [model.mountainPeakTag containsString:@"低特2"] ||
-                       [model.mountainPeakTag containsString:@"低特3"] ||
-                       [model.mountainPeakTag containsString:@"低特4"]) {
-                watchingIndex = i;
-                watchingType = @"低谷";
-            }
+// 买入,卖出
+- (void)backtestByPeakAndValleyRule {
+    
+    double capital = 1.0;
+    int tradeCount = 0;
+    int winCount = 0;
+    
+    int currentLoseStreak = 0;
+    int loseStreakCount[13] = {0};
+    
+    BOOL hasPosition = NO;
+    BOOL isLong = NO;
+    double entryPrice = 0;
+    NSString *entryTime = nil;
+    
+    KLineModel *referencePeak = nil;
+    KLineModel *referenceValley = nil;
+    
+    KLineModel *pendingPeak = nil;
+    KLineModel *pendingValley = nil;
+    
+    for (NSInteger i = 0; i < self.loadedKLineData.count; i++) {
+        KLineModel *model = self.loadedKLineData[i];
+        
+        // ========= 1️⃣ 先让“上一根”的候选生效 =========
+        if (pendingPeak) {
+            referencePeak = pendingPeak;
+            pendingPeak = nil;
         }
-
-        // =============================
-        // ② 开仓判断
-        // =============================
-        if (!inPosition && watchingIndex >= 0 && i > watchingIndex) {
-
-            KLineModel *watchModel = self.allKLineData[watchingIndex];
-
-            if ([watchingType isEqualToString:@"山峰"]) {
-                if (model.close > watchModel.open) {
-                    inPosition = YES;
-                    isLong = YES;
-                    buyIndex = i;
-                    buyPrice = model.close;
-                    lastPeakOrValleyOpen = watchModel.open;
-                }
-            }
-
-            if ([watchingType isEqualToString:@"低谷"]) {
-                if (model.close > watchModel.open) {
-                    inPosition = YES;
-                    isLong = NO;
-                    buyIndex = i;
-                    buyPrice = model.close;
-                    lastPeakOrValleyOpen = watchModel.open;
-                }
-            }
+        if (pendingValley) {
+            referenceValley = pendingValley;
+            pendingValley = nil;
         }
-
-        // =============================
-        // ③ 持仓 → 判断卖出
-        // =============================
-        if (inPosition && model.mountainPeakTag.length > 0) {
-
-            if (isLong && [model.mountainPeakTag containsString:@"山"]) {
-
-                if (model.open < lastPeakOrValleyOpen) {
-                    // 平仓
-                    double sellPrice = model.open;
-                    double pct = (sellPrice - buyPrice) / buyPrice;
-                    capital *= (1 + pct);
-
+        
+        // ========= 2️⃣ 标记新的候选山峰 / 低谷 =========
+        if ([model.mountainPeakTag isEqualToString:@"山峰"]) {
+            pendingPeak = model;
+        } else if ([model.mountainPeakTag isEqualToString:@"低谷"]) {
+            pendingValley = model;
+        }
+        
+        // =================================================
+        // 已持仓 → 判断卖出
+        // =================================================
+        if (hasPosition) {
+            
+            // ---- 做多：新山峰回落 ----
+            if (isLong && [model.mountainPeakTag isEqualToString:@"山峰"] && referencePeak) {
+                if (model.open < referencePeak.open) {
+                    
+                    double profit = (model.close - entryPrice) / entryPrice;
+                    capital *= (1 + profit);
+                    
                     tradeCount++;
-                    if (pct > 0) winCount++;
-
-                    if (pct < 0) currentLoseStreak++;
-                    else currentLoseStreak = 0;
-
-                    if (currentLoseStreak > 0) {
-                        loseStreakDict[@(currentLoseStreak)] =
-                        @([loseStreakDict[@(currentLoseStreak)] integerValue] + 1);
+                    BOOL win = profit > 0;
+                    
+                    if (win) {
+                        winCount++;
+                        if (currentLoseStreak > 0 && currentLoseStreak <= 12) {
+                            loseStreakCount[currentLoseStreak]++;
+                        }
+                        currentLoseStreak = 0;
+                    } else {
+                        currentLoseStreak++;
                     }
-
-                    NSDate *bd = [NSDate dateWithTimeIntervalSince1970:self.allKLineData[buyIndex].timestamp];
-                    NSDate *sd = [NSDate dateWithTimeIntervalSince1970:model.timestamp];
-
+                    
+                    NSString *timeString = [self timeString:model.timestamp];
                     NSLog(@"做多 | 买入时间 %@ | 卖出时间 %@ | 买入价 %.6f | 卖出价 %.6f | %@ | 盈利 %.3f%%",
-                          [fmt stringFromDate:bd],
-                          [fmt stringFromDate:sd],
-                          buyPrice,
-                          sellPrice,
-                          pct > 0 ? @"WIN" : @"LOSE",
-                          pct * 100);
-
-                    [returns addObject:@(pct * 100)];
-
-                    inPosition = NO;
-                    watchingIndex = -1;
-                    watchingType = @"";
-                } else {
-                    lastPeakOrValleyOpen = model.open;
+                          entryTime, timeString, entryPrice, model.close,
+                          win ? @"WIN" : @"LOSE", profit * 100);
+                    
+                    hasPosition = NO;
                 }
+                
+                referencePeak = model;
             }
-
-            if (!isLong && [model.mountainPeakTag containsString:@"低谷"]) {
-
-                if (model.open > lastPeakOrValleyOpen) {
-                    double sellPrice = model.open;
-                    double pct = (buyPrice - sellPrice) / buyPrice;
-                    capital *= (1 + pct);
-
+            
+            // ---- 做空：新低谷反弹 ----
+            if (!isLong && [model.mountainPeakTag isEqualToString:@"低谷"] && referenceValley) {
+                if (model.open > referenceValley.open) {
+                    
+                    double profit = (entryPrice - model.close) / entryPrice;
+                    capital *= (1 + profit);
+                    
                     tradeCount++;
-                    if (pct > 0) winCount++;
-
-                    if (pct < 0) currentLoseStreak++;
-                    else currentLoseStreak = 0;
-
-                    if (currentLoseStreak > 0) {
-                        loseStreakDict[@(currentLoseStreak)] =
-                        @([loseStreakDict[@(currentLoseStreak)] integerValue] + 1);
+                    BOOL win = profit > 0;
+                    
+                    if (win) {
+                        winCount++;
+                        if (currentLoseStreak > 0 && currentLoseStreak <= 12) {
+                            loseStreakCount[currentLoseStreak]++;
+                        }
+                        currentLoseStreak = 0;
+                    } else {
+                        currentLoseStreak++;
                     }
-
-                    NSDate *bd = [NSDate dateWithTimeIntervalSince1970:self.allKLineData[buyIndex].timestamp];
-                    NSDate *sd = [NSDate dateWithTimeIntervalSince1970:model.timestamp];
-
+                    
+                    NSString *timeString = [self timeString:model.timestamp];
                     NSLog(@"做空 | 买入时间 %@ | 卖出时间 %@ | 买入价 %.6f | 卖出价 %.6f | %@ | 盈利 %.3f%%",
-                          [fmt stringFromDate:bd],
-                          [fmt stringFromDate:sd],
-                          buyPrice,
-                          sellPrice,
-                          pct > 0 ? @"WIN" : @"LOSE",
-                          pct * 100);
-
-                    [returns addObject:@(pct * 100)];
-
-                    inPosition = NO;
-                    watchingIndex = -1;
-                    watchingType = @"";
-                } else {
-                    lastPeakOrValleyOpen = model.open;
+                          entryTime, timeString, entryPrice, model.close,
+                          win ? @"WIN" : @"LOSE", profit * 100);
+                    
+                    hasPosition = NO;
                 }
+                
+                referenceValley = model;
             }
+            
+            continue;
+        }
+        
+        NSString *timeString = [self timeString:model.timestamp];
+        
+        // =================================================
+        // 空仓 → 判断买入（先做多）
+        // =================================================
+        
+        if (referencePeak && model.close > referencePeak.open) {
+            hasPosition = YES;
+            isLong = YES;
+            entryPrice = model.close;
+            entryTime = timeString;
+            continue;
+        }
+        
+        if (referenceValley && model.close < referenceValley.open) {
+            hasPosition = YES;
+            isLong = NO;
+            entryPrice = model.close;
+            entryTime = timeString;
+            continue;
         }
     }
-
-    double avg = 0;
-    for (NSNumber *n in returns) avg += n.doubleValue;
-    avg = returns.count > 0 ? avg / returns.count : 0;
-
-    NSLog(@"\n============================");
+    
+    // ================== 结果 ==================
+    NSLog(@"============================");
     NSLog(@"===== 固定参数回测结果 =====");
     NSLog(@"============================");
     NSLog(@"最终资金乘数(起始资金为1) = %.6f", capital);
-    NSLog(@"交易笔数 = %ld", (long)tradeCount);
-    NSLog(@"获利笔数 = %ld", (long)winCount);
-    NSLog(@"胜率 = %.2f%%", tradeCount > 0 ? (double)winCount / tradeCount * 100 : 0);
-    NSLog(@"平均每笔回报（%%） = %.4f%%", avg);
-
-    NSLog(@"\n========== 连败统计（1..12） ==========");
-    for (NSInteger i = 1; i <= 12; i++) {
-        NSLog(@"连输%ld: %@", (long)i, loseStreakDict[@(i)] ?: @0);
+    NSLog(@"交易笔数 = %d", tradeCount);
+    NSLog(@"获利笔数 = %d", winCount);
+    NSLog(@"胜率 = %.2f%%", tradeCount ? (double)winCount / tradeCount * 100 : 0);
+    NSLog(@"平均每笔回报（%%） = %.4f", tradeCount ? (capital - 1) / tradeCount * 100 : 0);
+    
+    NSLog(@"========== 连败统计（1..12） ==========");
+    for (int i = 1; i <= 12; i++) {
+        NSLog(@"连输%d: %d", i, loseStreakCount[i]);
     }
 }
+
+
+
+
+
 
 @end
 
