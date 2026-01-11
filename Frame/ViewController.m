@@ -339,30 +339,6 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     [self setNeedsDisplay];
 }
 
-//// 下跌 -- k线判断法
-//-(BOOL)fall_withCurrentModel:(KLineModel *)currentModel withPreviousModel:(KLineModel *)previousModel {
-//    BOOL result = NO;
-//    //跌1%
-//    if ((previousModel.open - currentModel.close) / previousModel.open >= 0.01) {
-//        result = YES;
-//    }
-//    return result;
-//}
-//
-//// 上升 -- k线判断法
-//-(BOOL)rise_withCurrentModel:(KLineModel *)currentModel withPreviousModel:(KLineModel *)previousModel {
-//    BOOL result = NO;
-//    //升1%
-//    if ((currentModel.close - previousModel.open) / previousModel.open >= 0.01) {
-//        BOOL result = YES;
-//    }
-//    return result;
-//}
-
-
-
-
-
 - (void)drawRect:(CGRect)rect {
     if (!self.visibleKLineData || self.visibleKLineData.count == 0) return;
 
@@ -595,8 +571,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
     self.chartView.tipModelCallback = ^(KLineModel *tipModel) {
         weakSelf.tipView.model = tipModel;
     };
-    
-    
+ 
     
 }
 
@@ -2808,23 +2783,32 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
 
 // 买入,卖出
 - (void)backtestByPeakAndValleyRule {
-    
+    //初始资金 = 1
     double capital = 1.0;
+    //总的交易笔数
     int tradeCount = 0;
+    //盈利的交易笔数
     int winCount = 0;
-    
+    //当前连续亏损次数
     int currentLoseStreak = 0;
+    //出现过 n 连败的次数
     int loseStreakCount[13] = {0};
-    
+    //当前是否持仓
     BOOL hasPosition = NO;
+    //YES → 做多。  NO → 做空
     BOOL isLong = NO;
+    //开仓价（用 close）
     double entryPrice = 0;
+    //开仓时间（字符串，仅用于日志）
     NSString *entryTime = nil;
-    
+    //最近一个「已确认可用于判断趋势的山峰」
     KLineModel *referencePeak = nil;
+    //最近一个「已确认可用于判断趋势的低谷」
     KLineModel *referenceValley = nil;
     
+    //候选山峰
     KLineModel *pendingPeak = nil;
+    //候选低谷
     KLineModel *pendingValley = nil;
     
     for (NSInteger i = 0; i < self.loadedKLineData.count; i++) {
@@ -2850,15 +2834,20 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         // =================================================
         // 已持仓 → 判断卖出
         // =================================================
-        if (hasPosition) {
+        if (hasPosition) {//如果当前已经有仓位
             
             // ---- 做多：新山峰回落 ----
+            /**
+             1.当前是做多 2.当前 K 线是山峰  3.已经有一个参考山峰
+             */
             if (isLong && [model.mountainPeakTag isEqualToString:@"山峰"] && referencePeak) {
+                //新一轮上涨的山峰，开盘价已经低于上一个山峰
                 if (model.open < referencePeak.open) {
-                    
+                    //盈亏计算（做多）
                     double profit = (model.close - entryPrice) / entryPrice;
+                    //复利叠加
                     capital *= (1 + profit);
-                    
+                    //统计胜负 & 连败
                     tradeCount++;
                     BOOL win = profit > 0;
                     
@@ -2867,8 +2856,10 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         if (currentLoseStreak > 0 && currentLoseStreak <= 12) {
                             loseStreakCount[currentLoseStreak]++;
                         }
+                        //连败清0
                         currentLoseStreak = 0;
                     } else {
+                        //连败清 +1
                         currentLoseStreak++;
                     }
                     
@@ -2876,20 +2867,23 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     NSLog(@"做多 | 买入时间 %@ | 卖出时间 %@ | 买入价 %.6f | 卖出价 %.6f | %@ | 盈利 %.3f%%",
                           entryTime, timeString, entryPrice, model.close,
                           win ? @"WIN" : @"LOSE", profit * 100);
-                    
+                    //平仓完成
                     hasPosition = NO;
                 }
-                
+                //当前这个山峰，升级为新的参考峰
                 referencePeak = model;
             }
             
             // ---- 做空：新低谷反弹 ----
+            //1.当前是做空 2.当前 K 线是低谷 3.已有参考低谷
             if (!isLong && [model.mountainPeakTag isEqualToString:@"低谷"] && referenceValley) {
+                //新一轮下跌的低谷，反而比上一次低谷更高
                 if (model.open > referenceValley.open) {
-                    
+                    //做空收益计算
                     double profit = (entryPrice - model.close) / entryPrice;
+                    //复利叠加
                     capital *= (1 + profit);
-                    
+                    //统计胜负 & 连败
                     tradeCount++;
                     BOOL win = profit > 0;
                     
@@ -2898,8 +2892,10 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                         if (currentLoseStreak > 0 && currentLoseStreak <= 12) {
                             loseStreakCount[currentLoseStreak]++;
                         }
+                        //连败清0
                         currentLoseStreak = 0;
                     } else {
+                        //连败 +1
                         currentLoseStreak++;
                     }
                     
@@ -2910,7 +2906,7 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
                     
                     hasPosition = NO;
                 }
-                
+                //当前这个低谷，升级为新的参考峰
                 referenceValley = model;
             }
             
@@ -2922,19 +2918,27 @@ typedef void(^KLineTipModelAction)(KLineModel* tipModel);
         // =================================================
         // 空仓 → 判断买入（先做多）
         // =================================================
-        
+        //做多判断
         if (referencePeak && model.close > referencePeak.open) {
+            //已经持仓
             hasPosition = YES;
+            //做多
             isLong = YES;
+            //买入价
             entryPrice = model.close;
+            //买入时间
             entryTime = timeString;
             continue;
         }
-        
+        //做空判断
         if (referenceValley && model.close < referenceValley.open) {
+            //已经持仓
             hasPosition = YES;
+            //做空
             isLong = NO;
+            //卖出价
             entryPrice = model.close;
+            //卖出时间
             entryTime = timeString;
             continue;
         }
